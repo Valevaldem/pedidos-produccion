@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #F3F3F1;
+    color: #1B1A1F;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2 {
+    font-family: 'Libre Caslon Display', serif;
+  }
+}
+
+@layer components {
+  .btn-gold {
+    @apply bg-gold text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition;
+  }
+
+  .btn-ink {
+    @apply bg-ink text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:opacity-90 transition;
+  }
+
+  .btn-outline {
+    @apply border border-ink/20 text-ink px-4 py-2.5 rounded-lg text-sm font-medium hover:border-ink/50 transition;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-black/5 shadow-sm;
+  }
+
+  .input {
+    @apply w-full border border-black/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold bg-white;
+  }
+
+  .label {
+    @apply block text-xs font-medium text-ink/60 mb-1;
+  }
+}
