@@ -90,6 +90,5 @@ export function formatFecha(str) {
 
 export const ASESORAS = [
   'Fernanda', 'Dennise', 'Diana', 'Mónica',
-  'Sofi', 'Maru', 'Miranda', 'Renata',
-  'Daniela', 'Paulina', 'Nefer', 'Valeria',
+  'Valeria',
 ]
