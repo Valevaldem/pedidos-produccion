@@ -88,7 +88,4 @@ export function formatFecha(str) {
   return `${d}/${m}/${y}`
 }
 
-export const ASESORAS = [
-  'Fernanda', 'Dennise', 'Diana', 'Mónica',
-  'Valeria',
-]
+export const ASESORAS = ['Fernanda', 'Dennise', 'Diana', 'Mónica', 'Valeria']

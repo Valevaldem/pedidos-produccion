@@ -1,19 +1,19 @@
 'use client'
 import { useState } from 'react'
-import { ASESORAS } from '@/lib/etapas'
+import { ASESORAS, getLunesDe } from '@/lib/etapas'
 
 export default function ModalNuevoPedido({ asesora, asesoraFija = true, onClose, onSaved }) {
   const [form, setForm] = useState({
-    taller: 'MX',
+    taller:            'MX',
     fechaConfirmacion: '',
-    nombreCliente: '',
-    tituloPedido: '',
-    descripcionPieza: '',
-    fechaCompromiso: '',
-    asesora: asesora || '',
+    nombreCliente:     '',
+    tituloPedido:      '',
+    descripcionPieza:  '',
+    fechaCompromiso:   '',
+    asesora:           asesora || '',
   })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error,   setError]   = useState('')
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -25,14 +25,13 @@ export default function ModalNuevoPedido({ asesora, asesoraFija = true, onClose,
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/pedidos', {
-        method: 'POST',
+      const res = await fetch('/api/consultas', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body:    JSON.stringify({ ...form, semanaLunes: getLunesDe() }),
       })
       if (!res.ok) throw new Error()
-      const pedido = await res.json()
-      onSaved(pedido)
+      onSaved(await res.json())
     } catch {
       setError('No se pudo guardar. Intenta de nuevo.')
     } finally {
@@ -43,26 +42,23 @@ export default function ModalNuevoPedido({ asesora, asesoraFija = true, onClose,
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-y-auto max-h-[90vh]">
+
         <div className="p-6 border-b border-black/5">
           <h2 className="text-xl font-caslon">Agregar pedido</h2>
-          <p className="text-sm text-ink/50 mt-0.5">Llena los datos del pedido en producción</p>
+          <p className="text-sm text-ink/50 mt-0.5">Llena los datos del pedido que quieres consultar</p>
         </div>
 
         <div className="p-6 space-y-4">
+
           {/* Taller */}
           <div>
             <label className="label">Taller *</label>
             <div className="flex gap-2">
               {['MX', 'EU'].map(t => (
-                <button
-                  key={t}
-                  onClick={() => set('taller', t)}
+                <button key={t} onClick={() => set('taller', t)}
                   className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition ${
-                    form.taller === t
-                      ? 'bg-ink text-white border-ink'
-                      : 'bg-white text-ink border-black/15 hover:border-ink/40'
-                  }`}
-                >
+                    form.taller === t ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-black/15 hover:border-ink/40'
+                  }`}>
                   {t === 'MX' ? '🇲🇽 Taller MX' : '🇺🇸 Taller EU'}
                 </button>
               ))}
@@ -106,20 +102,18 @@ export default function ModalNuevoPedido({ asesora, asesoraFija = true, onClose,
               value={form.tituloPedido} onChange={e => set('tituloPedido', e.target.value)} />
           </div>
 
-          {/* Descripción pieza */}
+          {/* Descripción pieza — opcional */}
           <div>
             <label className="label">
               Descripción de la pieza
               <span className="text-ink/30 font-normal ml-1">(solo si no es de línea)</span>
             </label>
-            <textarea
-              className="input resize-none" rows={2}
+            <textarea className="input resize-none" rows={2}
               placeholder="Ej. Argolla 18K con piedra central oval 1.5ct y pavé en los lados"
-              value={form.descripcionPieza} onChange={e => set('descripcionPieza', e.target.value)}
-            />
+              value={form.descripcionPieza} onChange={e => set('descripcionPieza', e.target.value)} />
           </div>
 
-          {/* Fecha compromiso */}
+          {/* Fecha compromiso — opcional */}
           <div>
             <label className="label">
               Fecha compromiso con clienta
@@ -135,9 +129,10 @@ export default function ModalNuevoPedido({ asesora, asesoraFija = true, onClose,
         <div className="p-6 border-t border-black/5 flex gap-3">
           <button onClick={onClose} className="btn-outline flex-1">Cancelar</button>
           <button onClick={handleSubmit} disabled={loading} className="btn-ink flex-1 disabled:opacity-50">
-            {loading ? 'Guardando...' : 'Agregar pedido'}
+            {loading ? 'Guardando...' : 'Enviar consulta'}
           </button>
         </div>
+
       </div>
     </div>
   )

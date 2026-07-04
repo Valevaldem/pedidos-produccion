@@ -7,33 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Pedido {
-  id                Int        @id @default(autoincrement())
+model Consulta {
+  id                Int      @id @default(autoincrement())
+  semanaLunes       String   @map("semana_lunes")
   taller            String
-  fechaConfirmacion String     @map("fecha_confirmacion")
-  nombreCliente     String     @map("nombre_cliente")
-  tituloPedido      String     @map("titulo_pedido")
-  descripcionPieza  String?    @map("descripcion_pieza")
-  fechaCompromiso   String?    @map("fecha_compromiso")
+  fechaConfirmacion String   @map("fecha_confirmacion")
+  nombreCliente     String   @map("nombre_cliente")
+  tituloPedido      String   @map("titulo_pedido")
+  descripcionPieza  String?  @map("descripcion_pieza")
+  fechaCompromiso   String?  @map("fecha_compromiso")
   asesora           String
-  etapa             Int        @default(1)
+  etapa             Int?
   comentarios       String?
-  activo            Boolean    @default(true)
-  creadoEn          DateTime   @default(now()) @map("creado_en")
-  revisiones        Revision[]
+  creadoEn          DateTime @default(now()) @map("creado_en")
 
-  @@map("pedidos_produccion")
-}
-
-model Revision {
-  id          Int      @id @default(autoincrement())
-  pedidoId    Int      @map("pedido_id")
-  semanaLunes String   @map("semana_lunes")
-  asesora     String
-  etapa       Int?
-  comentarios String?
-  creadoEn    DateTime @default(now()) @map("creado_en")
-  pedido      Pedido   @relation(fields: [pedidoId], references: [id])
-
-  @@map("revisiones_produccion")
+  @@map("consultas_produccion")
 }
