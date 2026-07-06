@@ -94,6 +94,11 @@ function AsesoraView({ asesora, onBack }) {
   const cargar = async () => {
     try {
       const res = await fetch(`/api/consultas?semana=${SEMANA_ACTUAL}&asesora=${encodeURIComponent(asesora)}`)
+if (res.ok) {
+  setConsultas(await res.json())
+} else {
+  setConsultas([])
+}
       setConsultas(await res.json())
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
