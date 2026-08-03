@@ -271,9 +271,8 @@ function TabHistorial() {
       .then(r => r.json())
       .then(data => {
         // Excluir semana actual del historial
-        const pasadas = data.filter(s => s < SEMANA_ACTUAL)
-        setSemanas(pasadas)
-        if (pasadas.length > 0) setSemana(pasadas[0])
+  setSemanas(data)
+if (data.length > 0) setSemana(data[0])
       })
       .catch(console.error)
   }, [])
