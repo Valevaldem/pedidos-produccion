@@ -20,29 +20,25 @@ function ConsultaCard({ c }) {
   const contestado = c.etapa !== null && c.etapa !== undefined
 
   return (
-    <div className={`card p-5 ${contestado ? '' : 'border-dashed'}`}>
-      {/* Header */}
+    <div className={`card p-5 ${!contestado ? 'border-dashed' : ''}`}>
       <div className="flex items-center gap-2 mb-3 flex-wrap">
         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
           c.taller === 'MX' ? 'bg-amber-50 text-amber-800' : 'bg-blue-50 text-blue-800'
         }`}>
           {c.taller === 'MX' ? '🇲🇽 MX' : '🇺🇸 EU'}
         </span>
-
         {contestado ? (
-          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-50 text-green-700">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700 font-medium">
             ✓ Contestado
           </span>
         ) : (
-          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-stone-100 text-ink/40">
+          <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-ink/40 font-medium">
             Pendiente de respuesta
           </span>
         )}
-
         <span className="text-xs text-ink/25 ml-auto">#{c.id}</span>
       </div>
 
-      {/* Datos del pedido */}
       <p className="font-semibold text-ink">{c.nombreCliente}</p>
       <p className="text-sm text-ink/60 mb-1">{c.tituloPedido}</p>
       {c.descripcionPieza && (
@@ -57,16 +53,13 @@ function ConsultaCard({ c }) {
         )}
       </div>
 
-      {/* Respuesta de Vale */}
       {contestado ? (
         <div className="bg-gold/5 border border-gold/20 rounded-xl p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-semibold text-gold">
-              Etapa {c.etapa}/{getMaxEtapa(c.taller)} — {getEtapaLabel(c.taller, c.etapa)}
-            </span>
-          </div>
+          <p className="text-xs font-semibold text-gold mb-0.5">
+            Etapa {c.etapa}/{getMaxEtapa(c.taller)} — {getEtapaLabel(c.taller, c.etapa)}
+          </p>
           {c.comentarios && (
-            <p className="text-sm text-ink/70">{c.comentarios}</p>
+            <p className="text-sm text-ink/70 mt-1">{c.comentarios}</p>
           )}
         </div>
       ) : (
@@ -78,9 +71,9 @@ function ConsultaCard({ c }) {
   )
 }
 
-// ─── Vista asesora ────────────────────────────────────────────────────────────
+// ─── Tab Esta semana ──────────────────────────────────────────────────────────
 
-function AsesoraView({ asesora, onBack }) {
+function TabEstaSemana({ asesora, onAgregado }) {
   const [consultas, setConsultas] = useState([])
   const [loading,   setLoading]   = useState(true)
   const [modal,     setModal]     = useState(false)
@@ -94,13 +87,9 @@ function AsesoraView({ asesora, onBack }) {
   const cargar = async () => {
     try {
       const res = await fetch(`/api/consultas?semana=${SEMANA_ACTUAL}&asesora=${encodeURIComponent(asesora)}`)
-if (res.ok) {
-  setConsultas(await res.json())
-} else {
-  setConsultas([])
-}
-      setConsultas(await res.json())
-    } catch (e) { console.error(e) }
+      if (res.ok) setConsultas(await res.json())
+      else setConsultas([])
+    } catch { setConsultas([]) }
     finally { setLoading(false) }
   }
 
@@ -110,48 +99,37 @@ if (res.ok) {
     setModal(false)
     mostrarToast('Pedido enviado ✓')
     await cargar()
+    onAgregado?.()
   }
 
   const pendientes  = consultas.filter(c => c.etapa === null || c.etapa === undefined)
   const contestados = consultas.filter(c => c.etapa !== null && c.etapa !== undefined)
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-
+    <div>
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm text-white ${toast.tipo === 'error' ? 'bg-red-500' : 'bg-ink'}`}>
           {toast.msg}
         </div>
       )}
 
-      {/* Header */}
-      <button onClick={onBack} className="text-sm text-ink/40 hover:text-ink mb-6 flex items-center gap-1">
-        ← Cambiar nombre
-      </button>
-
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <h1 className="text-2xl font-caslon">Hola, {asesora}</h1>
-          <p className="text-xs text-ink/40 mt-0.5">Semana del {formatSemana(SEMANA_ACTUAL)}</p>
-        </div>
-        <button onClick={() => setModal(true)} className="btn-gold shrink-0">
-          + Agregar
-        </button>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs text-ink/40">Semana del {formatSemana(SEMANA_ACTUAL)}</p>
+        <button onClick={() => setModal(true)} className="btn-gold">+ Agregar</button>
       </div>
 
-      {/* Stats rápidos */}
       {consultas.length > 0 && (
-        <div className="flex gap-3 mt-4 mb-6">
-          <div className="bg-white rounded-xl px-4 py-2.5 border border-black/5 text-center flex-1">
-            <p className="text-2xl font-semibold text-ink">{consultas.length}</p>
+        <div className="flex gap-3 mb-5">
+          <div className="bg-white rounded-xl px-4 py-2 border border-black/5 text-center flex-1">
+            <p className="text-xl font-semibold">{consultas.length}</p>
             <p className="text-xs text-ink/40">esta semana</p>
           </div>
-          <div className="bg-white rounded-xl px-4 py-2.5 border border-black/5 text-center flex-1">
-            <p className="text-2xl font-semibold text-green-600">{contestados.length}</p>
+          <div className="bg-white rounded-xl px-4 py-2 border border-black/5 text-center flex-1">
+            <p className="text-xl font-semibold text-green-600">{contestados.length}</p>
             <p className="text-xs text-ink/40">contestados</p>
           </div>
-          <div className="bg-white rounded-xl px-4 py-2.5 border border-black/5 text-center flex-1">
-            <p className="text-2xl font-semibold text-ink/30">{pendientes.length}</p>
+          <div className="bg-white rounded-xl px-4 py-2 border border-black/5 text-center flex-1">
+            <p className="text-xl font-semibold text-ink/30">{pendientes.length}</p>
             <p className="text-xs text-ink/40">pendientes</p>
           </div>
         </div>
@@ -162,28 +140,19 @@ if (res.ok) {
       ) : consultas.length === 0 ? (
         <div className="card p-12 text-center border-dashed">
           <p className="text-ink/30 text-sm mb-4">No has agregado pedidos esta semana</p>
-          <button onClick={() => setModal(true)} className="btn-ink">
-            Agregar primer pedido
-          </button>
+          <button onClick={() => setModal(true)} className="btn-ink">Agregar primer pedido</button>
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Pendientes primero */}
           {pendientes.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-ink/40 uppercase tracking-wider mb-3">
-                Pendientes de respuesta
-              </p>
+              <p className="text-xs font-medium text-ink/40 uppercase tracking-wider mb-3">Pendientes</p>
               {pendientes.map(c => <ConsultaCard key={c.id} c={c} />)}
             </div>
           )}
-
-          {/* Contestados */}
           {contestados.length > 0 && (
-            <div className="mt-6">
-              <p className="text-xs font-medium text-ink/40 uppercase tracking-wider mb-3">
-                Contestados
-              </p>
+            <div className="mt-4">
+              <p className="text-xs font-medium text-ink/40 uppercase tracking-wider mb-3">Contestados</p>
               {contestados.map(c => <ConsultaCard key={c.id} c={c} />)}
             </div>
           )}
@@ -198,6 +167,104 @@ if (res.ok) {
           onSaved={handleGuardado}
         />
       )}
+    </div>
+  )
+}
+
+// ─── Tab Historial (asesora) ──────────────────────────────────────────────────
+
+function TabHistorial({ asesora }) {
+  const [semanas,   setSemanas]   = useState([])
+  const [semana,    setSemana]    = useState('')
+  const [consultas, setConsultas] = useState([])
+  const [loading,   setLoading]   = useState(false)
+
+  useEffect(() => {
+    fetch('/api/consultas/semanas')
+      .then(r => r.json())
+      .then(data => {
+        setSemanas(data)
+        if (data.length > 0) setSemana(data[0])
+      })
+      .catch(console.error)
+  }, [])
+
+  useEffect(() => {
+    if (!semana) return
+    setLoading(true)
+    fetch(`/api/consultas?semana=${semana}&asesora=${encodeURIComponent(asesora)}`)
+      .then(r => r.json())
+      .then(data => { setConsultas(Array.isArray(data) ? data : []); setLoading(false) })
+      .catch(() => { setConsultas([]); setLoading(false) })
+  }, [semana, asesora])
+
+  return (
+    <div>
+      {semanas.length === 0 ? (
+        <div className="card p-12 text-center text-ink/30 text-sm border-dashed">
+          Aún no hay semanas en el historial
+        </div>
+      ) : (
+        <>
+          <div className="mb-5">
+            <label className="label">Semana</label>
+            <select
+              className="border border-black/10 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none"
+              value={semana} onChange={e => setSemana(e.target.value)}
+            >
+              {semanas.map(s => (
+                <option key={s} value={s}>Semana del {formatSemana(s)}</option>
+              ))}
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-8 text-ink/30 text-sm">Cargando...</div>
+          ) : consultas.length === 0 ? (
+            <div className="card p-8 text-center text-ink/30 text-sm border-dashed">
+              No hay pedidos tuyos en esta semana
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {consultas.map(c => <ConsultaCard key={c.id} c={c} />)}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Vista asesora con tabs ───────────────────────────────────────────────────
+
+function AsesoraView({ asesora, onBack }) {
+  const [tab, setTab] = useState('semana')
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <button onClick={onBack} className="text-sm text-ink/40 hover:text-ink mb-6 flex items-center gap-1">
+        ← Cambiar nombre
+      </button>
+
+      <h1 className="text-2xl font-caslon mb-1">Hola, {asesora}</h1>
+
+      {/* Tabs */}
+      <div className="flex gap-1 bg-black/5 rounded-xl p-1 mb-6 w-fit mt-4">
+        {[
+          { id: 'semana',    label: 'Esta semana' },
+          { id: 'historial', label: 'Historial' },
+        ].map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              tab === t.id ? 'bg-white text-ink shadow-sm' : 'text-ink/40 hover:text-ink'
+            }`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'semana'    && <TabEstaSemana asesora={asesora} />}
+      {tab === 'historial' && <TabHistorial  asesora={asesora} />}
     </div>
   )
 }
